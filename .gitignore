@@ -1,0 +1,10 @@
+# Configuration locale (identifiants de la base de données, secret JWT)
+.env
+
+# Journaux générés à l'exécution : seul le dossier est versionné
+logs/*
+!logs/.gitkeep
+
+# Configuration des IDE
+.idea/
+.vscode/

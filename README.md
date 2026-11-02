@@ -182,6 +182,30 @@ Détails :
 
 7. Vérification du fonctionnement du client jQuery via un navigateur : http://localhost:8000/client.php.
 
+### Déploiement avec Docker
+
+Alternative aux étapes 2, 4 et 5 : la stack Apache + PHP 8.4 + MySQL 8.4 (+ phpMyAdmin) est décrite dans `compose.yaml` et `Dockerfile`.
+
+1. Dans le fichier `/.env` (étape 3), `DB_HOST` doit désigner le service MySQL et `DB_USER` ne doit pas être `root` (l'utilisateur est créé au premier démarrage) :
+
+    ```env
+    DB_HOST=db
+    DB_USER=native_php
+    DB_PASS=native_php
+    DB_NAME=native_php_restful_api
+    ```
+
+2. Démarrage des conteneurs (au premier démarrage, la base est créée et le script `/stuff/native_php_restful_api.sql` importé) :
+
+    ```shell
+    docker compose up -d --build
+    ```
+
+3. Client jQuery : http://localhost:8000/client.php, phpMyAdmin : http://localhost:8080 (identifiants `DB_USER` / `DB_PASS`).
+
+- Les erreurs PHP non interceptées sont consultables via `docker compose logs php`.
+- Réinitialisation de la base de données : `docker compose down -v` puis `docker compose up -d`.
+
 ## Gestion des erreurs
 
 ### Codes de réponses HTTP de l'API

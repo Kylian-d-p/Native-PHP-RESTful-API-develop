@@ -1,0 +1,34 @@
+# Les variables ${DB_*} sont lues dans le fichier .env (le même que celui chargé par l'API)
+services:
+  php:
+    build: .
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASS}
+    volumes:
+      - db_data:/var/lib/mysql
+      # Script importé automatiquement lors de la première création de la base
+      - ./stuff/native_php_restful_api.sql:/docker-entrypoint-initdb.d/native_php_restful_api.sql:ro
+
+  phpmyadmin:
+    image: phpmyadmin:5.2
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: db
+    depends_on:
+      - db
+
+volumes:
+  db_data:

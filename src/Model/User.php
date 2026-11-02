@@ -94,7 +94,8 @@ class User
             $query .= 'FROM user ';
             $query .= 'JOIN refresh_token ';
             $query .= 'ON user.id = refresh_token.user_id ';
-            $query .= 'WHERE revoked = 0';
+            $query .= 'WHERE revoked = 0 ';
+            $query .= 'AND expires_at > NOW()';
             $stmt = $this->conn->prepare($query);
             $stmt->execute();
 
@@ -111,7 +112,7 @@ class User
         return null;
     }
 
-    public function create($firstName, $lastName, $pseudo, $birthDate, $gender, $avatar, $email, $password): void
+    public function create($firstName, $lastName, $pseudo, $birthDate, $gender, $avatar, $email, $password): bool
     {
         try {
             throwDbNullConnection($this->conn);
@@ -129,9 +130,10 @@ class User
             $stmt->bindParam(':avatar', $avatar);
             $stmt->bindParam(':email', $email);
             $stmt->bindParam(':password', $password);
-            $stmt->execute();
+            return $stmt->execute();
         } catch (PDOException|Exception $e) {
             logWithDate('Query failed', $e->getMessage());
+            return false;
         }
     }
 
@@ -156,7 +158,7 @@ class User
         }
     }
 
-    public function setFields($id, $fields): void
+    public function setFields($id, $fields): bool
     {
         try {
             throwDbNullConnection($this->conn);
@@ -171,9 +173,10 @@ class User
                 $stmt->bindParam(":$fieldName", $fieldValue);
             }
             $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-            $stmt->execute();
+            return $stmt->execute();
         } catch (PDOException|Exception $e) {
             logWithDate('Query failed', $e->getMessage());
+            return false;
         }
     }
 

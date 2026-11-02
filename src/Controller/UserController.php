@@ -58,9 +58,10 @@ class UserController
             $email = $_POST['email'];
             $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
-            $this->user->create($firstName, $lastName, $pseudo, $birthDate, $gender, $avatar, $email, $password);
+            $isCreated = $this->user->create($firstName, $lastName, $pseudo, $birthDate, $gender, $avatar, $email, $password);
 
-            $result = $this->user->findByPseudoOrEmail($pseudo, $email);
+            // En cas d'échec (ex. : pseudo ou email déjà utilisé), ne pas renvoyer l'utilisateur existant
+            $result = $isCreated ? $this->user->findByPseudoOrEmail($pseudo, $email) : null;
 
             $httpResponseCode = !$result ? 400 : 200;
             $status = !$result ? 'Error' : 'Success';
@@ -113,7 +114,11 @@ class UserController
                 exit(1);
             }
 
-            $this->user->setFields($id, $toBeUpdated);
+            // Échec si le pseudo est déjà utilisé par un autre compte ou si une valeur est invalide
+            if (!$this->user->setFields($id, $toBeUpdated)) {
+                sendResponseCustom('User update failed', null, 'Error', 400);
+                exit(1);
+            }
             $result = $this->user->findById($id);
 
             sendResponseCustom('Successfully update data', $result);

@@ -78,19 +78,24 @@ if (!str_starts_with($requestUri, '/api/')) {
                 break;
         }
     } elseif (preg_match('#^/api/user/(\d+)$#', $requestUri, $matches)) {
-        $userId = $matches[1];
+        $id = (int) $matches[1];
+        // Seul le propriétaire du compte (identifié par son token d'accès) peut le remplacer, le modifier ou le supprimer
+        if (in_array($requestMethod, ['PUT', 'PATCH', 'DELETE']) && $id !== (int) $userId) {
+            sendResponse403();
+            exit(1);
+        }
         switch ($requestMethod) {
             case 'GET':
-                $userController->get($userId);
+                $userController->get($id);
                 break;
             case 'PUT':
-                $userController->replace($userId);
+                $userController->replace($id);
                 break;
             case 'PATCH':
-                $userController->update($userId);
+                $userController->update($id);
                 break;
             case 'DELETE':
-                $userController->delete($userId);
+                $userController->delete($id);
                 break;
             default:
                 sendResponse405();

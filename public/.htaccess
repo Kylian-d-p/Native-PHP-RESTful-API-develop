@@ -1,0 +1,5 @@
+# Toute URL ne correspondant à aucun fichier (ex. : /api/user) est confiée au contrôleur frontal
+FallbackResource /index.php
+
+# Apache ne transmet pas l'en-tête Authorization à PHP par défaut (indispensable pour le Bearer token)
+CGIPassAuth On
